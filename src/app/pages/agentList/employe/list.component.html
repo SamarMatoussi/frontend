@@ -1,0 +1,324 @@
+<div class="container-fluid">
+
+  <div class="row">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-body border-bottom">
+          <div class="d-flex align-items-center">
+            <h5 class="mb-0 card-title flex-grow-1">Liste des employés</h5>
+            <div class="flex-shrink-0 d-flex gap-1">
+             <a class="btn btn-primary" (click)="openAddModal()">Ajouter un employé</a>
+            </div>
+          </div>
+        </div>
+        <div class="card-body border-bottom">
+          <div class="row g-3">
+           <div class="col-xxl-4 col-lg-4">
+            <input type="search" class="form-control" id="searchInput" placeholder="Search for ..." (keyup)="searchEmploye($event.target.value)">
+          </div>
+          <!--<div class="col-xxl-2 col-lg-4">
+            <select class="form-select" [(ngModel)]="selectedStatut" id="idStatus" aria-label="Default select example">
+              <option value="" selected disabled>Sélectionnez l'état</option>
+              <option value="Active">Activé</option>
+              <option value="New">Désactivé</option>
+            </select>
+          </div>
+             <div class="col-xxl-2 col-lg-4">
+             <div id="datepicker1">
+                <input type="text" placeholder="Datepicker" class="form-control " bsDatepicker [bsConfig]="{ showWeekNumbers: false }">
+
+              </div>  
+            </div>
+            <div class="col-xxl-2 col-lg-4">
+              <button type="button" class="btn btn-soft-secondary w-100"><i class="mdi mdi-filter-outline align-middle"></i> Filter</button>
+            </div>-->
+          </div>
+        </div>
+        <div class="card-body">
+
+          <div class="table-responsive">
+            <table class="table align-middle dt-responsive nowrap w-100 table-check" id="job-list">
+              <thead>
+                <tr>
+                  <th scope="col">Prénom</th>
+                  <th scope="col">Nom</th>
+                  <th scope="col">Cin</th>
+                  <th scope="col">Téléphone</th>
+                  <th scope="col">Email</th>
+                  <!-- <th scope="col">Role</th> -->
+                  <th scope="col">Status</th>
+                  <th scope="col">Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let data of listegestionEmploye">
+                  <td>{{data?.firstname}}</td>
+                  <td>{{data?.lastname}}</td>
+                  <td>{{data?.cin}}</td>
+                  <td>{{data?.phone}}</td>
+                  <td>{{data?.email}}</td>
+                  <!-- <td>
+                    <span class="badge badge-soft-{{data.type_color}}" [ngClass]="{'badge-soft-info': data.role === 'EMPLOYE', 'badge-soft-warning': data.role === 'AGENT'}">{{data.role}}</span>
+                  </td> -->
+                  <td>
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" 
+                               type="checkbox" 
+                               id="switch{{data.cin}}" 
+                               [checked]="data.enabled" 
+                               (change)="toggleAccount(data.cin, $event.target.checked)"
+                               style="width: 36px; height: 20px; margin-top: 5px; margin-right: 5px;">
+                        <label class="form-check-label" for="switch{{data.cin}}"></label>
+                    </div>
+                </td>
+                  <td>
+                    <ul class="list-unstyled hstack gap-1 mb-0">
+                      <li data-bs-toggle="tooltip" data-bs-placement="top" title="View">
+                        <a class="btn btn-sm btn-soft-primary" (click)="openViewModal(data)"><i class="mdi mdi-eye-outline"></i></a>
+                      </li>
+                      <li data-bs-toggle="tooltip" data-bs-placement="top" title="Edit">
+                        <a class="btn btn-sm btn-soft-info" (click)="openUpdateModal(data)"><i class="mdi mdi-pencil-outline"></i></a>
+                      </li>
+                      <li data-bs-toggle="tooltip" data-bs-placement="top" title="Delete">
+                        <a  data-bs-toggle="modal" class="btn btn-sm btn-soft-danger" (click)="deleteEmploye(data.id)"><i class="mdi mdi-delete-outline"></i></a>
+                      </li>
+    
+                    </ul>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          
+          <div class="row justify-content-between align-items-center">
+           <!--<div class="col-auto me-auto">
+              <p class="text-muted mb-0">Showing <b>{{service.startIndex}}</b> to <b>{{service.endIndex}}</b> of <b>{{service.totalRecords}}</b> entries</p>
+            </div>--> 
+            <div class="col-auto">
+              <div class="text-md-right float-md-end pagination-rounded">
+            <!--   <ul class="pagination pagination-rounded justify-content-end mb-2">
+                  <pagination [totalItems]="(total | async)!" [(ngModel)]="service.page" [itemsPerPage]="service.pageSize" previousText="&lsaquo;" nextText="&rsaquo;"></pagination>
+                </ul>--> 
+              </div>
+            </div>
+            <!--end col-->
+          </div>
+          <!--end row-->
+        </div>
+      </div>
+    </div>
+  </div>
+<!--</div>-->
+
+<!-- Create Model -->
+<ng-template #addContent role="document" let-modal>
+  <div class="modal-header">
+    <h5 class="modal-title" id="exampleModalLabel">Ajouter un employé</h5>
+    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" id="close-modal" (click)="modalRef?.hide()"></button>
+  </div>
+  <form (ngSubmit)="addemploye()" [formGroup]="agentForm">
+      <div class="modal-body">
+        <div class="mb-3">
+          <label for="firstname-field" class="form-label fw-bold">Prénom</label>
+          <input type="text" id="firstname-field" class="form-control" placeholder="Saisissez votre prénom." required formControlName="firstname" 
+                 [ngClass]="{ 'invalid-border': submitted && agentForm.get('firstname')?.invalid }"/>
+          <div *ngIf="agentForm.get('firstname')?.invalid && (agentForm.get('firstname')?.touched || submitted)" class="text-danger">
+            {{ handleError('firstname') }}
+          </div>
+        </div>
+  
+        <div class="mb-3">
+          <label for="lastname-field" class="form-label fw-bold">Nom</label>
+          <input type="text" id="lastname-field" class="form-control" placeholder="Saisissez votre nom" required formControlName="lastname" 
+                 [ngClass]="{ 'is-invalid': submitted && agentForm.get('lastname')?.invalid }"/>
+          <div *ngIf="agentForm.get('lastname')?.invalid && (agentForm.get('lastname')?.touched || submitted)" class="text-danger">
+            {{ handleError('lastname') }}
+          </div>
+        </div>
+  
+        <div class="mb-3">
+          <label for="cin" class="form-label fw-bold">CIN</label>
+          <input type="text" id="cin" formControlName="cin" class="form-control" placeholder="Saisissez votre CIN" />
+          <div *ngIf="agentForm.get('cin')?.errors?.required && (agentForm.get('cin')?.touched || submitted)" class="text-danger">
+            {{ handleError('cin') }}
+          </div>
+          <div *ngIf="agentForm.get('cin')?.errors?.pattern && (agentForm.get('cin')?.touched || submitted)" class="text-danger">
+            Le numéro CIN doit contenir exactement 8 chiffres.
+          </div>
+        </div>
+  
+        <div class="mb-3">
+          <label for="phone" class="form-label fw-bold">Numéro de téléphone</label>
+          <input type="text" id="phone" formControlName="phone" class="form-control" placeholder="Saisissez votre numéro de téléphone"/>
+          <div *ngIf="agentForm.get('phone')?.errors?.required && (agentForm.get('phone')?.touched || submitted)" class="text-danger">
+            {{ handleError('phone') }}
+          </div>
+          <div *ngIf="agentForm.get('phone')?.errors?.pattern && (agentForm.get('phone')?.touched || submitted)" class="text-danger">
+            Le numéro de téléphone doit contenir exactement 8 chiffres.
+          </div>
+        </div>
+  
+        <div class="mb-3">
+          <label for="email" class="form-label fw-bold">Email</label>
+          <input type="email" id="email" formControlName="email" class="form-control" placeholder="Saisissez votre email" />
+          <div *ngIf="agentForm.get('email')?.invalid && (agentForm.get('email')?.touched || submitted)" class="text-danger">
+            {{ handleError('email') }}
+          </div>
+        </div>
+  
+        <div class="mb-3">
+          <label for="password" class="form-label fw-bold">Mot de passe</label>
+          <div class="input-group">
+            <input [type]="showPassword ? 'text' : 'password'" id="password" formControlName="password" class="form-control" placeholder="Saisissez votre mot de passe" />
+            <button type="button" class="btn btn-outline-secondary" (click)="showPassword = !showPassword">
+              <i [ngClass]="showPassword ? 'mdi mdi-eye-off-outline' : 'mdi mdi-eye-outline'"></i>
+            </button>
+          </div>
+          <div *ngIf="agentForm.get('password')?.invalid && (agentForm.get('password')?.touched || submitted)" class="text-danger">
+            {{ handleError('password') }}
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <div class="hstack gap-2 justify-content-end">
+          <button type="button" class="btn btn-light" data-bs-dismiss="modal" (click)="close()">Annuler</button>
+          <button type="submit" class="btn btn-success" id="add-btn">Ajouter</button>
+        </div>
+      </div>
+    </form>
+</ng-template>
+<!--End Modal -->
+<!-- Update Model -->
+<ng-template #updateContent role="document" let-modal>
+  <div class="modal-header">
+    <h5 class="modal-title" id="exampleModalLabel">Modifier un employé</h5>
+    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" id="close-modal" (click)="modalRef?.hide()"></button>
+  </div>
+  <form (ngSubmit)="updateemploye()" [formGroup]="agentForm">
+      <div class="modal-body">
+        <div class="mb-3">
+          <label for="firstname-field" class="form-label fw-bold">Prénom</label>
+          <input type="text" id="firstname-field" class="form-control" placeholder="Saisissez votre prénom." required formControlName="firstname" 
+                 [ngClass]="{ 'invalid-border': submitted && agentForm.get('firstname')?.invalid }"/>
+          <div *ngIf="agentForm.get('firstname')?.invalid && (agentForm.get('firstname')?.touched || submitted)" class="text-danger">
+            {{ handleError('firstname') }}
+          </div>
+        </div>
+  
+        <div class="mb-3">
+          <label for="lastname-field" class="form-label fw-bold">Nom</label>
+          <input type="text" id="lastname-field" class="form-control" placeholder="Saisissez votre nom" required formControlName="lastname" 
+                 [ngClass]="{ 'is-invalid': submitted && agentForm.get('lastname')?.invalid }"/>
+          <div *ngIf="agentForm.get('lastname')?.invalid && (agentForm.get('lastname')?.touched || submitted)" class="text-danger">
+            {{ handleError('lastname') }}
+          </div>
+        </div>
+  
+        <div class="mb-3">
+          <label for="cin" class="form-label fw-bold">CIN</label>
+          <input type="text" id="cin" formControlName="cin" class="form-control" placeholder="Saisissez votre CIN" />
+          <div *ngIf="agentForm.get('cin')?.errors?.required && (agentForm.get('cin')?.touched || submitted)" class="text-danger">
+            {{ handleError('cin') }}
+          </div>
+          <div *ngIf="agentForm.get('cin')?.errors?.pattern && (agentForm.get('cin')?.touched || submitted)" class="text-danger">
+            Le numéro CIN doit contenir exactement 8 chiffres.
+          </div>
+        </div>
+  
+        <div class="mb-3">
+          <label for="phone" class="form-label fw-bold">Numéro de téléphone</label>
+          <input type="text" id="phone" formControlName="phone" class="form-control" placeholder="Saisissez votre numéro de téléphone"/>
+          <div *ngIf="agentForm.get('phone')?.errors?.required && (agentForm.get('phone')?.touched || submitted)" class="text-danger">
+            {{ handleError('phone') }}
+          </div>
+          <div *ngIf="agentForm.get('phone')?.errors?.pattern && (agentForm.get('phone')?.touched || submitted)" class="text-danger">
+            Le numéro de téléphone doit contenir exactement 8 chiffres.
+          </div>
+        </div>
+  
+        <div class="mb-3">
+          <label for="email" class="form-label fw-bold">Email</label>
+          <input type="email" id="email" formControlName="email" class="form-control" placeholder="Saisissez votre email" />
+          <div *ngIf="agentForm.get('email')?.invalid && (agentForm.get('email')?.touched || submitted)" class="text-danger">
+            {{ handleError('email') }}
+          </div>
+        </div>
+  
+        <div class="mb-3">
+          <label for="password" class="form-label fw-bold">Mot de passe</label>
+          <div class="input-group">
+            <input [type]="showPassword ? 'text' : 'password'" id="password" formControlName="password" class="form-control" placeholder="Saisissez votre mot de passe" />
+            <button type="button" class="btn btn-outline-secondary" (click)="showPassword = !showPassword">
+              <i [ngClass]="showPassword ? 'mdi mdi-eye-off-outline' : 'mdi mdi-eye-outline'"></i>
+            </button>
+          </div>
+          <div *ngIf="agentForm.get('password')?.invalid && (agentForm.get('password')?.touched || submitted)" class="text-danger">
+            {{ handleError('password') }}
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <div class="hstack gap-2 justify-content-end">
+          <button type="button" class="btn btn-light" data-bs-dismiss="modal" (click)="close()">Annuler</button>
+          <button type="submit" class="btn btn-success" id="add-btn">Modifier</button>
+        </div>
+      </div>
+    </form>
+</ng-template>
+<!--End Modal -->
+
+<!-- View Modal -->
+<ng-template #viewContent role="document" let-modal>
+  <div class="modal-header">
+    <h5 class="modal-title mt-0">Détails de l'employé</h5>
+    <button type="button" class="btn-close" aria-hidden="true" (click)="modalRef?.hide()"></button>
+  </div>
+  <div class="modal-body">
+    <div class="row">
+      <div class="col-md-6">
+        <div class="card mb-3">
+          <div class="card-body">
+            <h6 class="card-title">Informations personnelles</h6>
+            <div class="mb-3">
+              <label for="viewFirstName" class="form-label">Prénom :</label>
+              <input type="text" class="form-control" id="viewFirstName" [value]="selectedAgent?.firstname" readonly>
+            </div>
+            <div class="mb-3">
+              <label for="viewLastName" class="form-label">Nom :</label>
+              <input type="text" class="form-control" id="viewLastName" [value]="selectedAgent?.lastname" readonly>
+            </div>
+            <div class="mb-3">
+              <label for="viewPhone" class="form-label">Téléphone :</label>
+              <input type="text" class="form-control" id="viewPhone" [value]="selectedAgent?.phone" readonly>
+            </div>
+            <div class="mb-3">
+              <label for="viewEmail" class="form-label">Email :</label>
+              <input type="email" class="form-control" id="viewEmail" [value]="selectedAgent?.email" readonly>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="card mb-3">
+          <div class="card-body">
+            <h6 class="card-title">Autres informations</h6>
+            <div class="mb-3">
+              <label for="viewRole" class="form-label">Rôle :</label>
+              <input type="text" class="form-control" id="viewRole" [value]="selectedAgent?.role" readonly>
+            </div>
+            <div class="mb-3">
+              <label for="viewStatus" class="form-label">Statut :</label>
+              <input type="text" class="form-control" id="viewStatus" [value]="selectedAgent?.isEnabled" readonly>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button class="btn btn-secondary" (click)="modal.close('Close click')">Fermer</button>
+  </div>
+</ng-template>
+
+
+<!-- End View Modal -->

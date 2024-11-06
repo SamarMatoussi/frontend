@@ -1,0 +1,246 @@
+<div class="container-fluid">
+
+  <div class="row">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-body border-bottom">
+          <div class="d-flex align-items-center">
+            <h5 class="mb-0 card-title flex-grow-1">liste des indicateurs clés de performance (KPI)</h5>
+            <div class="flex-shrink-0 d-flex gap-1">
+             <a class="btn btn-success btn-rounded waves-effect waves-light addContact-modal mb-2" (click)="openAddModal()">Ajouter un KPI</a>
+              
+            </div>
+          </div>
+        </div>
+        <div class="card-body border-bottom">
+          <div class="row g-3">
+           <div class="col-xxl-4 col-lg-4">
+            <input type="search" class="form-control" id="searchInput" placeholder="Search for ..." (keyup)="searchKpi($event.target.value)">
+          </div>
+           
+            
+             <!-- <div class="col-xxl-2 col-lg-4">
+              <div id="datepicker1">
+                <input type="text" placeholder="Datepicker" class="form-control " bsDatepicker [bsConfig]="{ showWeekNumbers: false }">
+              </div>   
+            </div> 
+            <div class="col-xxl-2 col-lg-4">
+              <button type="button" class="btn btn-soft-secondary w-100"><i class="mdi mdi-filter-outline align-middle"></i> Filter</button>
+            </div>-->
+          </div>
+        </div> 
+        <div class="card-body">
+
+          <div class="table-responsive">
+            <table class="table align-middle dt-responsive nowrap w-100 table-check" id="job-list">
+              <thead>
+                <tr>
+                  <th scope="col">Name</th>
+                  <th scope="col">Label</th>
+                  <th scope="col">Description</th>
+                  <th scope="col">Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let kpi of listeKpi">
+                  <td>{{kpi.nameKpi}}</td>
+                  <td>{{kpi.label}}</td>
+                  <td>{{kpi.description}}</td>
+                  <td>
+                    <ul class="list-unstyled hstack gap-1 mb-0">
+                      <li data-bs-toggle="tooltip" data-bs-placement="top" title="View">
+                        <a class="btn btn-sm btn-soft-primary" (click)="openViewModal(kpi)"><i class="mdi mdi-eye-outline"></i></a>
+                      </li>
+                      <li data-bs-toggle="tooltip" data-bs-placement="top" title="Edit">
+                        <a class="btn btn-sm btn-soft-info" (click)="openUpdateModal(kpi)"><i class="mdi mdi-pencil-outline"></i></a>
+                      </li>
+                      <li data-bs-toggle="tooltip" data-bs-placement="top" title="Delete">
+                        <a  data-bs-toggle="modal" class="btn btn-sm btn-soft-danger" (click)="deleteKpi(kpi.id)"><i class="mdi mdi-delete-outline"></i></a>
+                      </li>
+                    </ul>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="row justify-content-between align-items-center">
+           <!--<div class="col-auto me-auto">
+              <p class="text-muted mb-0">Showing <b>{{service.startIndex}}</b> to <b>{{service.endIndex}}</b> of <b>{{service.totalRecords}}</b> entries</p>
+            </div>--> 
+            <div class="col-auto">
+              <div class="text-md-right float-md-end pagination-rounded">
+            <!--   <ul class="pagination pagination-rounded justify-content-end mb-2">
+                  <pagination [totalItems]="(total | async)!" [(ngModel)]="service.page" [itemsPerPage]="service.pageSize" previousText="&lsaquo;" nextText="&rsaquo;"></pagination>
+                </ul>--> 
+              </div>
+            </div>
+            <!--end col-->
+          </div>
+          <!--end row-->
+        </div>
+      </div>
+    </div>
+  </div>
+<!--</div>-->
+
+
+<!-- Create Model -->
+<ng-template #addContent role="document" let-modal>
+  <div class="modal-header">
+    <h5 class="modal-title" id="exampleModalLabel">Ajouter un KPI</h5>
+    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" id="close-modal" (click)="modalRef?.hide()"></button>
+  </div>
+  <form (ngSubmit)="addkpi()" [formGroup]="agentForm">
+    <div class="modal-body">
+    <!-- <input type="hidden" name="id" value="" formControlName="ids" />  -->
+     <div class="mb-3">
+        <label for="customername-field" class="form-label">Name</label>
+        <input type="text" id="customername-field" class="form-control" placeholder="Entrer nameKpi" required formControlName="nameKpi" [ngClass]="{ 'is-invalid': submitted && form['nameKpi'].errors }"/>
+        <div *ngIf="submitted && form['nameKpi'].errors" class="invalid-feedback" align="left">
+          <div *ngIf="form['nameKpi'].errors['required']">name is required</div>
+        </div>
+      </div>
+      <div class="mb-3">
+        <label for="customername-field" class="form-label">label</label>
+        <input type="text" id="customername-field" class="form-control" placeholder="Entrer label" required formControlName="label" [ngClass]="{ 'is-invalid': submitted && form['label'].errors }"/>
+        <div *ngIf="submitted && form['label'].errors" class="invalid-feedback" align="left">
+          <div *ngIf="form['label'].errors['required']">label is required</div>
+        </div>
+      </div>
+
+      <div class="mb-3">
+        <label for="customername-field" class="form-label">description</label>
+        <input type="text" id="customername-field" class="form-control" placeholder="Entrer description" required formControlName="description" [ngClass]="{ 'is-invalid': submitted && form['description'].errors }" />
+        <div *ngIf="submitted && form['description'].errors" class="invalid-feedback" align="left">
+          <div *ngIf="form['description'].errors['required']">description is required</div>
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="activite">Activite</label>
+        <select class="form-control" formControlName="activiteId">
+            <option *ngFor="let activite of activites" [value]="activite.id">{{ activite.name }}</option>
+        </select>
+    </div>
+    
+    
+
+    </div>
+    <div class="modal-footer">
+      <div class="hstack gap-2 justify-content-end">
+        <button type="button" class="btn btn-light" data-bs-dismiss="modal" (click)="close()">Annuler</button>
+        <button type="submit" class="btn btn-success" id="add-btn">Ajouter</button>
+      </div>
+    </div>
+  </form>
+</ng-template><!--End Modal -->
+<!-- Update Model -->
+<ng-template #updateContent role="document" let-modal>
+  <div class="modal-header">
+    <h5 class="modal-title" id="exampleModalLabel">Modifier un KPI </h5>
+    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" id="close-modal" (click)="modalRef?.hide()"></button>
+  </div>
+  <form (ngSubmit)="updatekpi()" [formGroup]="agentForm">
+    <div class="modal-body">
+    <!-- <input type="hidden" name="id" value="" formControlName="ids" />  -->
+    <div class="mb-3">
+      <label for="id-field" class="form-label">ID</label>
+      <input type="text" id="id-field" class="form-control" placeholder="Enter ID" formControlName="id" [ngClass]="{ 'is-invalid': submitted && agentForm.controls['id'].errors }" />
+      <div *ngIf="submitted && agentForm.controls['id'].errors" class="invalid-feedback" align="left">
+        <div *ngIf="agentForm.controls['id'].errors['required']">ID is required</div>
+      </div>
+    </div>
+    
+     <div class="mb-3">
+        <label for="customername-field" class="form-label">name</label>
+        <input type="text" id="customername-field" class="form-control" placeholder="Entrer name" required formControlName="name" [ngClass]="{ 'is-invalid': submitted && form['name'].errors }"/>
+        <div *ngIf="submitted && form['name'].errors" class="invalid-feedback" align="left">
+          <div *ngIf="form['name'].errors['required']">name is required</div>
+        </div>
+      </div>
+      <div class="mb-3">
+        <label for="customername-field" class="form-label">label</label>
+        <input type="text" id="customername-field" class="form-control" placeholder="Entrer label" required formControlName="label" [ngClass]="{ 'is-invalid': submitted && form['label'].errors }"/>
+        <div *ngIf="submitted && form['label'].errors" class="invalid-feedback" align="left">
+          <div *ngIf="form['label'].errors['required']">label is required</div>
+        </div>
+      </div>
+
+      <div class="mb-3">
+        <label for="customername-field" class="form-label">Description</label>
+        <input type="text" id="customername-field" class="form-control" placeholder="Entrer description" required formControlName="description" [ngClass]="{ 'is-invalid': submitted && form['description'].errors }" />
+        <div *ngIf="submitted && form['description'].errors" class="invalid-feedback" align="left">
+          <div *ngIf="form['description'].errors['required']">Description is required</div>
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="activite">Activite</label>
+        <select class="form-control" formControlName="activiteId">
+            <option *ngFor="let activite of activites" [value]="activite.id">{{ activite.name }}</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <div class="hstack gap-2 justify-content-end">
+        <button type="button" class="btn btn-light" data-bs-dismiss="modal" (click)="close()">Annuler</button>
+        <button type="submit" class="btn btn-success" id="update-btn">Modifier</button>
+      </div>
+    </div>
+  </form>
+</ng-template>
+<!--End Modal -->
+<!--  
+<ng-template #viewContent role="document" let-modal>
+  <div class="modal-header">
+    <h5 class="modal-title mt-0">Détails de l'utilisateur</h5>
+    <button type="button" class="btn-close" aria-hidden="true" (click)="modalRef?.hide()"></button>
+  </div>
+  <div class="modal-body">
+    <div class="row">
+      <div class="col-md-6">
+        <div class="card mb-3">
+          <div class="card-body">
+            <h6 class="card-title">Informations personnelles</h6>
+            <div class="mb-3">
+              <label for="viewFirstName" class="form-label">Prénom :</label>
+              <input type="text" class="form-control" id="viewFirstName" [value]="selectedAgent?.firstname" readonly>
+            </div>
+            <div class="mb-3">
+              <label for="viewLastName" class="form-label">Nom :</label>
+              <input type="text" class="form-control" id="viewLastName" [value]="selectedAgent?.lastname" readonly>
+            </div>
+            <div class="mb-3">
+              <label for="viewPhone" class="form-label">Téléphone :</label>
+              <input type="text" class="form-control" id="viewPhone" [value]="selectedAgent?.phone" readonly>
+            </div>
+            <div class="mb-3">
+              <label for="viewEmail" class="form-label">Email :</label>
+              <input type="email" class="form-control" id="viewEmail" [value]="selectedAgent?.email" readonly>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="card mb-3">
+          <div class="card-body">
+            <h6 class="card-title">Autres informations</h6>
+            <div class="mb-3">
+              <label for="viewRole" class="form-label">Rôle :</label>
+              <input type="text" class="form-control" id="viewRole" [value]="selectedAgent?.role" readonly>
+            </div>
+            <div class="mb-3">
+              <label for="viewStatus" class="form-label">Statut :</label>
+              <input type="text" class="form-control" id="viewStatus" [value]="selectedAgent?.isEnabled" readonly>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button class="btn btn-secondary" (click)="modal.close('Close click')">Fermer</button>
+  </div>
+</ng-template>
+-->
+
+<!-- End View Modal -->
+
